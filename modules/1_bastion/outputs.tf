@@ -22,3 +22,8 @@ output "bastion_ip" {
     depends_on = [null_resource.bastion_init]
     value = openstack_compute_instance_v2.bastion.access_ip_v4
 }
+
+output "bastion_private_ip" {
+    depends_on = [null_resource.bastion_init]
+    value = var.private_network_name == "" ? "" : openstack_compute_instance_v2.bastion.network[0].fixed_ip_v4
+}

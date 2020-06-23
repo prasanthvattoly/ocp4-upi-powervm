@@ -51,9 +51,18 @@ resource "openstack_compute_instance_v2" "bastion" {
     image_id        = var.bastion["image_id"]
     flavor_id       = var.scg_id == "" ? data.openstack_compute_flavor_v2.bastion.id : openstack_compute_flavor_v2.bastion_scg[0].id
     key_pair        = openstack_compute_keypair_v2.key-pair.0.name
-    network {
-        name    = var.network_name
+
+    dynamic "network" {
+        for_each    = [var.private_network_name]
+        content {
+            name    = network.value
+        }
     }
+    network {
+        name            = var.network_name
+        access_network  = true
+    }
+
     availability_zone = var.openstack_availability_zone
 
     provisioner "remote-exec" {

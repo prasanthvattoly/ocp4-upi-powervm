@@ -39,6 +39,7 @@ module "bastion" {
     cluster_id                      = "${random_id.label.hex}"
     bastion                         = var.bastion
     network_name                    = var.network_name
+    private_network_name            = var.private_network_name
     scg_id                          = var.scg_id
     openstack_availability_zone     = var.openstack_availability_zone
     rhel_username                   = var.rhel_username
@@ -59,7 +60,7 @@ module "network" {
 
     cluster_domain                  = var.cluster_domain
     cluster_id                      = "${random_id.label.hex}"
-    network_name                    = var.network_name
+    network_name                    = var.private_network_name == "" ? var.network_name : var.private_network_name
     master_count                    = var.master["count"]
     worker_count                    = var.worker["count"]
     network_type                    = var.network_type
@@ -68,7 +69,7 @@ module "network" {
 module "nodes" {
     source                          = "./modules/4_nodes"
 
-    bastion_ip                      = module.bastion.bastion_ip
+    bastion_ip                      = var.private_network_name == "" ? module.bastion.bastion_ip : module.bastion.bastion_private_ip
     cluster_domain                  = var.cluster_domain
     cluster_id                      = "${random_id.label.hex}"
     bootstrap                       = var.bootstrap
@@ -91,6 +92,7 @@ module "install" {
     cidr                            = module.network.cidr
     allocation_pools                = module.network.allocation_pools
     bastion_ip                      = module.bastion.bastion_ip
+    bastion_private_ip              = module.bastion.bastion_private_ip
     rhel_username                   = var.rhel_username
     private_key                     = local.private_key
     ssh_agent                       = var.ssh_agent

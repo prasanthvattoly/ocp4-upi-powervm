@@ -100,6 +100,11 @@ variable "network_name" {
     default = "my_network_name"
 }
 
+variable "private_network_name" {
+    description = "The name of the private network to be used for cluster nodes"
+    default = ""
+}
+
 variable "network_type" {
     #Eg: SEA or SRIOV
     default = "SEA"

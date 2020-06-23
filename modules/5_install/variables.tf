@@ -33,6 +33,7 @@ variable cidr {}
 variable allocation_pools {}
 
 variable "bastion_ip" {}
+variable "bastion_private_ip" {}
 variable "rhel_username" {}
 variable "private_key" {}
 variable "ssh_agent" {}
