@@ -60,7 +60,18 @@ module "network" {
 
     cluster_domain                  = var.cluster_domain
     cluster_id                      = "${random_id.label.hex}"
-    network_name                    = var.private_network_name == "" ? var.network_name : var.private_network_name
+    network_name                    = var.network_name
+    master_count                    = var.master["count"]
+    worker_count                    = var.worker["count"]
+    network_type                    = var.network_type
+}
+
+module "private_network" {
+    source                          = "./modules/3_network"
+
+    cluster_domain                  = var.cluster_domain
+    cluster_id                      = "${random_id.label.hex}"
+    network_name                    = var.private_network_name
     master_count                    = var.master["count"]
     worker_count                    = var.worker["count"]
     network_type                    = var.network_type
@@ -69,7 +80,7 @@ module "network" {
 module "nodes" {
     source                          = "./modules/4_nodes"
 
-    bastion_ip                      = var.private_network_name == "" ? module.bastion.bastion_ip : module.bastion.bastion_private_ip
+    bastion_ip                      = module.bastion.bastion_ip
     cluster_domain                  = var.cluster_domain
     cluster_id                      = "${random_id.label.hex}"
     bootstrap                       = var.bootstrap
@@ -80,6 +91,9 @@ module "nodes" {
     bootstrap_port_id               = module.network.bootstrap_port_id
     master_port_ids                 = module.network.master_port_ids
     worker_port_ids                 = module.network.worker_port_ids
+    bootstrap_private_port_id       = module.private_network.bootstrap_port_id
+    master_private_port_ids         = module.private_network.master_port_ids
+    worker_private_port_ids         = module.private_network.worker_port_ids
 }
 
 module "install" {

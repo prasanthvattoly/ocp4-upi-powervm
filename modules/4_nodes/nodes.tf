@@ -71,6 +71,12 @@ resource "openstack_compute_instance_v2" "bootstrap" {
 
     user_data   = data.ignition_config.bootstrap.rendered
 
+    dynamic "network" {
+        for_each    = [var.bootstrap_private_port_id]
+        content {
+            port    = network.value
+        }
+    }
     network {
         port    = var.bootstrap_port_id
     }
@@ -129,6 +135,12 @@ resource "openstack_compute_instance_v2" "master" {
         count.index,
     )
 
+    dynamic "network" {
+        for_each    = [var.master_private_port_ids[count.index]]
+        content {
+            port    = network.value
+        }
+    }
     network {
         port    = var.master_port_ids[count.index]
     }
@@ -188,6 +200,12 @@ resource "openstack_compute_instance_v2" "worker" {
         count.index,
     )
 
+    dynamic "network" {
+        for_each    = [var.worker_private_port_ids[count.index]]
+        content {
+            port    = network.value
+        }
+    }
     network {
         port = var.worker_port_ids[count.index]
     }

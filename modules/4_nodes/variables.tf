@@ -54,3 +54,7 @@ variable "openstack_availability_zone" {}
 variable "bootstrap_port_id" {}
 variable "master_port_ids" {}
 variable "worker_port_ids" {}
+
+variable "bootstrap_private_port_id" {}
+variable "master_private_port_ids" {}
+variable "worker_private_port_ids" {}

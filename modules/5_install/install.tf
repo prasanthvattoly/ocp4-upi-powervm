@@ -101,12 +101,7 @@ resource "null_resource" "config" {
         content     = templatefile("${path.module}/templates/helpernode_vars.yaml", local.helpernode_vars)
         destination = "~/ocp4-helpernode/helpernode_vars.yaml"
     }
-    provisioner "remote-exec" {
-        inline = [
-            "echo 'Running ocp4-helpernode playbook...'",
-            "cd ocp4-helpernode && ansible-playbook -e @helpernode_vars.yaml tasks/main.yml ${var.ansible_extra_options}"
-        ]
-    }
+
 }
 
 resource "null_resource" "install" {
@@ -137,12 +132,7 @@ resource "null_resource" "install" {
         content     = templatefile("${path.module}/templates/install_vars.yaml", local.install_vars)
         destination = "~/ocp4-playbooks/install_vars.yaml"
     }
-    provisioner "remote-exec" {
-        inline = [
-            "echo 'Running ocp install playbook...'",
-            "cd ocp4-playbooks && ansible-playbook -i inventory -e @install_vars.yaml playbooks/install.yaml ${var.ansible_extra_options}"
-        ]
-    }
+
 }
 
 resource "null_resource" "upgrade" {
