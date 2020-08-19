@@ -25,22 +25,8 @@ resource "random_id" "label" {
 
 #bootstrap
 data "ignition_config" "bootstrap" {
-    append {
+    merge {
         source  = "http://${var.bastion_ip}:8080/ignition/bootstrap.ign"
-    }
-    files       = [
-        data.ignition_file.b_hostname.rendered,
-    ]
-}
-
-data "ignition_file" "b_hostname" {
-    filesystem  = "root"
-    mode        = "420" // 0644
-    path        = "/etc/hostname"
-    content {
-        content = <<EOF
-bootstrap
-EOF
     }
 }
 
@@ -86,25 +72,10 @@ data "ignition_systemd_unit" "ramdisk" {
 
 data "ignition_config" "master" {
     count       = var.master["count"]
-    append {
+    merge {
         source  = "http://${var.bastion_ip}:8080/ignition/master.ign"
     }
-    files       = [
-        element(data.ignition_file.m_hostname.*.rendered, count.index),
-    ]
     systemd     = var.mount_etcd_ramdisk ? data.ignition_systemd_unit.ramdisk.*.rendered : null
-}
-
-data "ignition_file" "m_hostname" {
-    count       = var.master["count"]
-    filesystem  = "root"
-    mode        = "420" // 0644
-    path        = "/etc/hostname"
-    content {
-    content     = <<EOF
-master-${count.index}
-EOF
-    }
 }
 
 resource "openstack_compute_flavor_v2" "master_scg" {
@@ -143,27 +114,12 @@ resource "openstack_compute_instance_v2" "master" {
 
 
 #worker
-data "ignition_file" "w_hostname" {
-    count       = var.worker["count"]
-    filesystem  = "root"
-    mode        = "420" // 0644
-    path        = "/etc/hostname"
-
-    content {
-    content     = <<EOF
-worker-${count.index}
-EOF
-    }
-}
 
 data "ignition_config" "worker" {
     count       = var.worker["count"]
-    append {
+    merge {
         source  = "http://${var.bastion_ip}:8080/ignition/worker.ign"
     }
-    files       = [
-        element(data.ignition_file.w_hostname.*.rendered, count.index),
-    ]
 }
 
 resource "openstack_compute_flavor_v2" "worker_scg" {
